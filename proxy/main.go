@@ -15,7 +15,12 @@ func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Received request for: [%s] %s\n", r.Method, r.URL.String())
 
 	// Create a new HTTP client
-	client := &http.Client{}
+	client := &http.Client{
+		// ignore using ProxyFromEnvironment in DefaultTransport
+		Transport: &http.Transport{
+			Proxy: nil,
+		},
+	}
 
 	// Forward the request to the destination server
 	req, err := http.NewRequest(r.Method, r.URL.String(), r.Body)

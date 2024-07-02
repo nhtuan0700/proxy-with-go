@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
-	"time"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
 
-
-func sendRequest(method string, url string) {
+func sendRequest(method string, url string, data string) {
 	// Set up a sample HTTP request
 	// Don't use localhost, otherwise, proxy is not working
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest(method, url, strings.NewReader(data))
 	if err != nil {
 		fmt.Println("Error creating request:", err)
 		return
@@ -37,6 +37,7 @@ func sendRequest(method string, url string) {
 
 	// Create a custom HTTP client using the proxy configuration
 	client := &http.Client{
+		// This is default transport
 		Transport: &http.Transport{
 			Proxy: http.ProxyURL(proxyURL),
 		},
@@ -50,9 +51,14 @@ func sendRequest(method string, url string) {
 	}
 	defer resp.Body.Close()
 
+	d, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal("failed to read body")
+	}
 	// Print the response status code and content length
 	fmt.Println("Response Status:", resp.Status)
 	fmt.Println("Response Content Length:", resp.ContentLength)
+	fmt.Println("Response data:", string(d))
 }
 
 func main() {
@@ -61,10 +67,5 @@ func main() {
 		log.Fatal("failed to load .env file")
 	}
 
-	for {
-		go func ()  {
-			sendRequest("GET", "http://server.local:28080")
-		}()
-		time.Sleep(time.Second)
-	}
+	sendRequest("GET", "http://server.local:28080", "Tuan")
 }
