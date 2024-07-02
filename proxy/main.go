@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func proxyHandler(w http.ResponseWriter, r *http.Request) {
 	// Print details of incoming request
 	fmt.Printf("Received request for: [%s] %s\n", r.Method, r.URL.String())
 
@@ -61,8 +61,8 @@ func main() {
 		log.Fatal("failed to load .env file")
 	}
 
-	http.HandleFunc("/", handler)
-	addr := fmt.Sprintf("%s", os.Getenv("PROXY_URL"))
+	http.HandleFunc("/", proxyHandler)
+	addr := os.Getenv("HTTP_PROXY")
 
 	// Start the server on port 8080
 	fmt.Printf("Proxy server listening on %s ...\n", addr)

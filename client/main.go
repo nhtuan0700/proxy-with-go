@@ -5,19 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
-func main() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatal("failed to load .env file")
-	}
 
+func sendRequest(method string, url string) {
 	// Set up a sample HTTP request
 	// Don't use localhost, otherwise, proxy is not working
-	req, err := http.NewRequest("GET", "http://server.local:9090", nil)
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		fmt.Println("Error creating request:", err)
 		return
@@ -56,4 +53,18 @@ func main() {
 	// Print the response status code and content length
 	fmt.Println("Response Status:", resp.Status)
 	fmt.Println("Response Content Length:", resp.ContentLength)
+}
+
+func main() {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatal("failed to load .env file")
+	}
+
+	for {
+		go func ()  {
+			sendRequest("GET", "http://server.local:28080")
+		}()
+		time.Sleep(time.Second)
+	}
 }
